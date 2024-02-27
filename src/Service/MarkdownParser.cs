@@ -13,7 +13,7 @@ public class MarkdownParser : IMarkdownParser
         return MarkdigParse(content, pipeline);
     }
 
-    protected MarkdownDocument MarkdigParse(string content, MarkdownPipeline pipeline)
+    protected virtual MarkdownDocument MarkdigParse(string content, MarkdownPipeline pipeline)
     {
         return Markdown.Parse(content, pipeline);
     }

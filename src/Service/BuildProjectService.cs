@@ -6,7 +6,7 @@ namespace Seagull.Service;
 public class BuildProjectService(
     IDeserializer deserializer,
     IFileService fileService,
-    MarkdownFileRendererService markdownFileRendererService
+    IMarkdownRendererService markdownRendererService
 )
 {
     public void BuildProject(string src, string dest)
@@ -56,7 +56,7 @@ public class BuildProjectService(
     {
         foreach (var mdFile in mdFiles)
         {
-            var page = markdownFileRendererService.RenderAsPage(mdFile);
+            var page = markdownRendererService.RenderAsPage(mdFile);
             fileService.CreateTextFile(Path.Join(path, page.Path), page.Content);
         }
     }
