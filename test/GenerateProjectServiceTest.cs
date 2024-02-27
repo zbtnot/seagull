@@ -9,8 +9,8 @@ namespace test;
 [TestClass]
 public class GenerateProjectServiceTest
 {
-    protected Mock<ISerializer> _serializer = new();
-    protected Mock<IFileService> _fileService = new();
+    private readonly Mock<ISerializer> _serializer = new();
+    private readonly Mock<IFileService> _fileService = new();
     
     [TestMethod]
     public void TestGenerateProject()
