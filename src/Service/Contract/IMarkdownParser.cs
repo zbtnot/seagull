@@ -1,7 +1,7 @@
 using Markdig;
 using Markdig.Syntax;
 
-namespace Seagull.Service;
+namespace Seagull.Service.Contract;
 
 public interface IMarkdownParser
 {

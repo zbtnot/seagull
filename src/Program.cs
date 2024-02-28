@@ -16,6 +16,7 @@ internal static class Program
     private static readonly GenerateProjectService _generateProjectService;
     private static readonly MarkdownPipeline _markdownPipeline;
     private static readonly MarkdownRendererService _markdownRendererService;
+    private static readonly MarkdownFileFactory _markdownFileFactory;
 
     static Program()
     {
@@ -25,8 +26,19 @@ internal static class Program
         var mdPipelineBuilder = new MarkdownPipelineBuilder().UseYamlFrontMatter();
         _markdownPipeline = mdPipelineBuilder.Build();
         _markdownPipeline.Setup(new HtmlRenderer(new StringWriter()));
-        _markdownRendererService = new MarkdownRendererService(_markdownPipeline, new MarkdownParser(), new MarkdownInvoker());
-        _buildProjectService = new BuildProjectService(_deserializer, _fileService, _markdownRendererService);
+        _markdownRendererService = new MarkdownRendererService(
+            _markdownPipeline,
+            new MarkdownParser(),
+            new MarkdownInvoker(),
+            new HtmlTemplateParser()
+        );
+        _markdownFileFactory = new MarkdownFileFactory(_fileService);
+        _buildProjectService = new BuildProjectService(
+            _deserializer,
+            _fileService,
+            _markdownRendererService,
+            _markdownFileFactory
+        );
         _generateProjectService = new GenerateProjectService(_serializer, _fileService);
     }
 
