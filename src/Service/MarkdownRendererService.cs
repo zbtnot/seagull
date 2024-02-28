@@ -8,18 +8,23 @@ public class MarkdownRendererService(
     MarkdownPipeline pipeline,
     IMarkdownParser markdownParser,
     IMarkdownInvoker invoker,
-    IHtmlTemplateParser templateParser
+    IHtmlTemplateParser templateParser,
+    IFrontmatterExtractor frontmatterExtractor
 ) : IMarkdownRendererService
 {
     public Page RenderAsPage(MarkdownFile file, IDictionary<string, string> templates, Configuration configuration)
     {
         var md = markdownParser.Parse(file.Contents, pipeline);
         var contentHtml = invoker.InvokeHtml(md, pipeline);
-        var template = templateParser.Parse(templates.First().Value); // TODO source from Md file's front matter
+        var template = templateParser.Parse(templates.First().Value);
+        var frontmatter = frontmatterExtractor.Extract(md);
         
         var templateVariables = new Dictionary<object, object>
         {
-            ["title"] = configuration.Title,
+            ["title"] = frontmatter?.Title ?? configuration.Title,
+            ["date"] = frontmatter?.Date ?? DateTime.Now,
+            ["description"] = frontmatter?.Description ?? string.Empty,
+            ["keywords"] = frontmatter?.Keywords ?? Array.Empty<string>(),
             ["content"] = contentHtml,
         };
         
