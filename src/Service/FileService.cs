@@ -1,4 +1,5 @@
 using Seagull.Exception;
+using Seagull.Service.Contract;
 
 namespace Seagull.Service;
 

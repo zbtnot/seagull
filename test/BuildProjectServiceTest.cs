@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using Moq;
 using Seagull.Model;
 using Seagull.Service;
+using Seagull.Service.Contract;
 using YamlDotNet.Serialization;
 
 namespace test;
@@ -9,9 +10,10 @@ namespace test;
 [TestClass]
 public class BuildProjectServiceTest
 {
-    protected Mock<IDeserializer> _deserializer = new();
-    protected Mock<IFileService> _fileService = new();
-    protected Mock<IMarkdownRendererService> _markdownRendererService = new();
+    private readonly Mock<IDeserializer> _deserializer = new();
+    private readonly Mock<IFileService> _fileService = new();
+    private readonly Mock<IMarkdownRendererService> _markdownRendererService = new();
+    private readonly Mock<IMarkdownFileFactory> _markdownFileFactory = new();
 
     [TestMethod]
     public void TestBuildProject()
@@ -40,12 +42,20 @@ public class BuildProjectServiceTest
             Path = destFilesHtml[0],
             Title = string.Empty,
         };
-        
+        var templates = new Dictionary<string, string>()
+        {
+            ["default"] = string.Empty,
+        };
+        var configuration = new Configuration
+        {
+            Templates = templates,
+        };
+
         // mocks
         Expression<Func<IFileService, IEnumerable<string>>> readDirectoryContents =
             fs => fs.ReadDirectoryContents(src, string.Empty);
         _fileService.Setup(readDirectoryContents).Returns(allSrcFiles);
-        
+
         Expression<Func<IFileService, IEnumerable<string>>> readDirectoryContentsMdFiltered =
             fs => fs.ReadDirectoryContents(src, "*.md");
         _fileService.Setup(readDirectoryContentsMdFiltered).Returns(srcFilesMd);
@@ -59,14 +69,23 @@ public class BuildProjectServiceTest
 
         Expression<Func<IDeserializer, Configuration>> deserialize = ds =>
             ds.Deserialize<Configuration>(It.IsAny<string>());
-        _deserializer.Setup(deserialize).Returns(new Configuration());
+        _deserializer.Setup(deserialize).Returns(configuration);
 
         Expression<Func<IMarkdownRendererService, Page>> renderAsPage = mdrs =>
-            mdrs.RenderAsPage(It.IsAny<MarkdownFile>());
+            mdrs.RenderAsPage(
+                It.IsAny<MarkdownFile>(),
+                templates,
+                It.IsAny<Configuration>()
+            );
         _markdownRendererService.Setup(renderAsPage).Returns(pageFile);
-        
+
         var buildProjectService =
-            new BuildProjectService(_deserializer.Object, _fileService.Object, _markdownRendererService.Object);
+            new BuildProjectService(
+                _deserializer.Object,
+                _fileService.Object,
+                _markdownRendererService.Object,
+                _markdownFileFactory.Object
+            );
         buildProjectService.BuildProject(src, dest);
 
         _fileService.Verify(readDirectoryContents, Times.Once);

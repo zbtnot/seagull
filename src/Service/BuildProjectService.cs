@@ -1,4 +1,5 @@
 using Seagull.Model;
+using Seagull.Service.Contract;
 using YamlDotNet.Serialization;
 
 namespace Seagull.Service;
@@ -6,20 +7,27 @@ namespace Seagull.Service;
 public class BuildProjectService(
     IDeserializer deserializer,
     IFileService fileService,
-    IMarkdownRendererService markdownRendererService
+    IMarkdownRendererService markdownRendererService,
+    IMarkdownFileFactory markdownFileFactory
 )
 {
     public void BuildProject(string src, string dest)
     {
         var configText = FindAndReadConfigFile(src);
         var config = deserializer.Deserialize<Configuration>(configText);
+        var templates = ReadTemplates(config.Templates, src);
+        if (templates.Count == 0)
+        {
+            throw new FileNotFoundException("No template files found. Please check your configuration.");
+        }
+
         if (fileService.DirectoryPathExists(dest) == false)
         {
             fileService.CreateDirectory(dest);
         }
-        
+
         var mdFiles = FindAndReadMdFiles(src);
-        RenderMdFilesAndWrite(mdFiles, dest);
+        RenderMdFilesAndWrite(mdFiles, dest, templates, config);
     }
 
     protected string FindAndReadConfigFile(string path)
@@ -40,24 +48,32 @@ public class BuildProjectService(
     {
         var mdFilePaths = fileService.ReadDirectoryContents(path, "*.md");
 
-        MarkdownFile MdFileMapper(string mdFilePath)
-        {
-            return new()
-            {
-                Contents = fileService.ReadTextFile(mdFilePath),
-                Path = mdFilePath.Replace(path, string.Empty),
-            };
-        }
-
-        return mdFilePaths.Select(MdFileMapper);
+        return mdFilePaths.Select(filePath => markdownFileFactory.Create(filePath, path));
     }
 
-    protected void RenderMdFilesAndWrite(IEnumerable<MarkdownFile> mdFiles, string path)
+    protected void RenderMdFilesAndWrite(
+        IEnumerable<MarkdownFile> mdFiles,
+        string path,
+        IDictionary<string, string> templates,
+        Configuration configuration
+    )
     {
         foreach (var mdFile in mdFiles)
         {
-            var page = markdownRendererService.RenderAsPage(mdFile);
+            var page = markdownRendererService.RenderAsPage(mdFile, templates, configuration);
             fileService.CreateTextFile(Path.Join(path, page.Path), page.Content);
         }
+    }
+
+    protected IDictionary<string, string> ReadTemplates(IDictionary<string, string> templates, string path)
+    {
+        var loadedTemplates = new Dictionary<string, string>();
+
+        foreach (var template in templates)
+        {
+            loadedTemplates[template.Key] = fileService.ReadTextFile(Path.Join(path, template.Value));
+        }
+
+        return loadedTemplates;
     }
 }

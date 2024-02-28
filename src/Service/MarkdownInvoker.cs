@@ -1,5 +1,6 @@
 using Markdig;
 using Markdig.Syntax;
+using Seagull.Service.Contract;
 
 namespace Seagull.Service;
 

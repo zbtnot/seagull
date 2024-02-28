@@ -1,4 +1,5 @@
 using Seagull.Model;
+using Seagull.Service.Contract;
 using YamlDotNet.Serialization;
 
 namespace Seagull.Service;
@@ -9,6 +10,7 @@ public class GenerateProjectService(ISerializer serializer, IFileService fileSer
     {
         fileService.CreateDirectory(path);
         fileService.CreateTextFile(Path.Join(path, "seagull.yml"), GenerateDefaultConfiguration());
+        fileService.CreateTextFile(Path.Join(path, "layout.html"), GenerateDefaultHtmlLayout());
     }
 
     protected string GenerateDefaultConfiguration()
@@ -16,8 +18,30 @@ public class GenerateProjectService(ISerializer serializer, IFileService fileSer
         var config = new Configuration()
         {
             Title = "Project title",
+            Templates = new Dictionary<string, string>
+            {
+                ["default"] = "layout.html",
+            }
         };
-        
+
         return serializer.Serialize(config);
+    }
+
+    protected string GenerateDefaultHtmlLayout()
+    {
+        return
+            """
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>
+                        {{ title }}
+                    </title>
+                </head>
+                <body>
+                {{ content }}
+                </body>
+            </html>
+            """;
     }
 }

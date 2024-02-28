@@ -1,4 +1,4 @@
-namespace Seagull.Service;
+namespace Seagull.Service.Contract;
 
 public interface IFileService
 {
