@@ -30,7 +30,8 @@ internal static class Program
             _markdownPipeline,
             new MarkdownParser(),
             new MarkdownInvoker(),
-            new HtmlTemplateParser()
+            new HtmlTemplateParser(),
+            new FrontmatterExtractor(_deserializer)
         );
         _markdownFileFactory = new MarkdownFileFactory(_fileService);
         _buildProjectService = new BuildProjectService(

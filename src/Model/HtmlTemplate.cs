@@ -4,5 +4,5 @@ namespace Seagull.Model;
 
 public class HtmlTemplate
 {
-    public Template Template { get; set; } = null;
+    public Template? Template { get; set; }
 }

@@ -17,7 +17,7 @@ public class HtmlTemplateParser : IHtmlTemplateParser
 
     public string Render(HtmlTemplate htmlTemplate, IDictionary<object, object> context)
     {
-        return htmlTemplate.Template.Render(context);
+        return htmlTemplate.Template?.Render(context) ?? string.Empty;
     }
 
     protected virtual Template TemplateParse(string htmlTemplate)

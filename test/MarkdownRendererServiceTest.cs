@@ -17,6 +17,7 @@ public class MarkdownRendererServiceTest
     private readonly Mock<IMarkdownParser> _parser = new();
     private readonly Mock<IMarkdownInvoker> _invoker = new();
     private readonly Mock<IHtmlTemplateParser> _htmlParser = new();
+    private readonly Mock<IFrontmatterExtractor> _frontmatterExtractor = new();
 
     [TestMethod]
     public void TestRenderAsPage()
@@ -49,7 +50,8 @@ public class MarkdownRendererServiceTest
             _pipeline,
             _parser.Object,
             _invoker.Object,
-            _htmlParser.Object
+            _htmlParser.Object,
+            _frontmatterExtractor.Object
         );
         var page = markdownFileRendererService.RenderAsPage(markdownFile, templates, new Configuration());
 
