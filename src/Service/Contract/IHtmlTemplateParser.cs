@@ -1,4 +1,3 @@
-using Scriban;
 using Seagull.Model;
 
 namespace Seagull.Service.Contract;

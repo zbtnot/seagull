@@ -8,7 +8,8 @@ public class BuildProjectService(
     IDeserializer deserializer,
     IFileService fileService,
     IMarkdownRendererService markdownRendererService,
-    IMarkdownFileFactory markdownFileFactory
+    IMarkdownFileFactory markdownFileFactory,
+    IIndexGenerator indexGenerator
 )
 {
     public void BuildProject(string src, string dest)
@@ -27,7 +28,10 @@ public class BuildProjectService(
         }
 
         var mdFiles = FindAndReadMdFiles(src);
-        RenderMdFilesAndWrite(mdFiles, dest, templates, config);
+        var pages = RenderMdFilesToPages(mdFiles, templates, config).ToList();
+        var indexFile = indexGenerator.Generate(pages, templates.FirstOrDefault().Value, config);
+        fileService.CreateTextFile(Path.Join(dest, "index.html"), indexFile);
+        WritePagesToDisk(pages, dest);
     }
 
     protected string FindAndReadConfigFile(string path)
@@ -51,16 +55,19 @@ public class BuildProjectService(
         return mdFilePaths.Select(filePath => markdownFileFactory.Create(filePath, path));
     }
 
-    protected void RenderMdFilesAndWrite(
+    protected IEnumerable<Page> RenderMdFilesToPages(
         IEnumerable<MarkdownFile> mdFiles,
-        string path,
         IDictionary<string, string> templates,
         Configuration configuration
     )
     {
-        foreach (var mdFile in mdFiles)
+        return mdFiles.Select(mdFile => markdownRendererService.RenderAsPage(mdFile, templates, configuration));
+    }
+
+    protected void WritePagesToDisk(IEnumerable<Page> pages, string path)
+    {
+        foreach (var page in pages)
         {
-            var page = markdownRendererService.RenderAsPage(mdFile, templates, configuration);
             fileService.CreateTextFile(Path.Join(path, page.Path), page.Content);
         }
     }

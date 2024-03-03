@@ -84,13 +84,14 @@ public class BuildProjectServiceTest
                 _deserializer.Object,
                 _fileService.Object,
                 _markdownRendererService.Object,
-                _markdownFileFactory.Object
+                _markdownFileFactory.Object,
+                new IndexGenerator(new HtmlTemplateParser())
             );
         buildProjectService.BuildProject(src, dest);
 
         _fileService.Verify(readDirectoryContents, Times.Once);
         _fileService.Verify(readDirectoryContentsMdFiltered, Times.Once);
-        _fileService.Verify(createTextFile, Times.Once);
+        _fileService.Verify(createTextFile, Times.Exactly(2));
         _fileService.Verify(readTextFile, Times.Exactly(2));
         _deserializer.Verify(deserialize, Times.Once);
         _markdownRendererService.Verify(renderAsPage, Times.Once);

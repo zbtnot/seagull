@@ -17,6 +17,7 @@ internal static class Program
     private static readonly MarkdownPipeline _markdownPipeline;
     private static readonly MarkdownRendererService _markdownRendererService;
     private static readonly MarkdownFileFactory _markdownFileFactory;
+    private static readonly HtmlTemplateParser _htmlTemplateParser = new HtmlTemplateParser();
 
     static Program()
     {
@@ -30,7 +31,7 @@ internal static class Program
             _markdownPipeline,
             new MarkdownParser(),
             new MarkdownInvoker(),
-            new HtmlTemplateParser(),
+            _htmlTemplateParser,
             new FrontmatterExtractor(_deserializer)
         );
         _markdownFileFactory = new MarkdownFileFactory(_fileService);
@@ -38,7 +39,8 @@ internal static class Program
             _deserializer,
             _fileService,
             _markdownRendererService,
-            _markdownFileFactory
+            _markdownFileFactory,
+            new IndexGenerator(_htmlTemplateParser)
         );
         _generateProjectService = new GenerateProjectService(_serializer, _fileService);
     }
