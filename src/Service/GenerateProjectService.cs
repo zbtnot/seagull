@@ -10,7 +10,7 @@ public class GenerateProjectService(ISerializer serializer, IFileService fileSer
     {
         fileService.CreateDirectory(path);
         fileService.CreateTextFile(Path.Join(path, "seagull.yml"), GenerateDefaultConfiguration());
-        fileService.CreateTextFile(Path.Join(path, "layout.html"), GenerateDefaultHtmlLayout());
+        fileService.CreateTextFile(Path.Join(path, "layout.scriban"), GenerateDefaultHtmlLayout());
     }
 
     protected string GenerateDefaultConfiguration()
@@ -20,7 +20,7 @@ public class GenerateProjectService(ISerializer serializer, IFileService fileSer
             Title = "Project title",
             Templates = new Dictionary<string, string>
             {
-                ["default"] = "layout.html",
+                ["default"] = "layout.scriban",
             }
         };
 

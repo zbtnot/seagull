@@ -9,7 +9,8 @@ public class BuildProjectService(
     IFileService fileService,
     IMarkdownRendererService markdownRendererService,
     IMarkdownFileFactory markdownFileFactory,
-    IIndexGenerator indexGenerator
+    IIndexGenerator indexGenerator,
+    IFileCopier fileCopier
 )
 {
     public void BuildProject(string src, string dest)
@@ -32,9 +33,10 @@ public class BuildProjectService(
         var indexFile = indexGenerator.Generate(pages, templates.FirstOrDefault().Value, config);
         fileService.CreateTextFile(Path.Join(dest, "index.html"), indexFile);
         WritePagesToDisk(pages, dest);
+        fileCopier.CopyFiles(src, dest);
     }
 
-    protected string FindAndReadConfigFile(string path)
+    private string FindAndReadConfigFile(string path)
     {
         var filePaths = fileService.ReadDirectoryContents(path).ToArray();
         foreach (var filePath in filePaths)
@@ -48,14 +50,14 @@ public class BuildProjectService(
         throw new FileNotFoundException("Could not locate seagull.yml in the provided path.");
     }
 
-    protected IEnumerable<MarkdownFile> FindAndReadMdFiles(string path)
+    private IEnumerable<MarkdownFile> FindAndReadMdFiles(string path)
     {
         var mdFilePaths = fileService.ReadDirectoryContents(path, "*.md");
 
         return mdFilePaths.Select(filePath => markdownFileFactory.Create(filePath, path));
     }
 
-    protected IEnumerable<Page> RenderMdFilesToPages(
+    private IEnumerable<Page> RenderMdFilesToPages(
         IEnumerable<MarkdownFile> mdFiles,
         IDictionary<string, string> templates,
         Configuration configuration
@@ -64,7 +66,7 @@ public class BuildProjectService(
         return mdFiles.Select(mdFile => markdownRendererService.RenderAsPage(mdFile, templates, configuration));
     }
 
-    protected void WritePagesToDisk(IEnumerable<Page> pages, string path)
+    private void WritePagesToDisk(IEnumerable<Page> pages, string path)
     {
         foreach (var page in pages)
         {
@@ -72,7 +74,7 @@ public class BuildProjectService(
         }
     }
 
-    protected IDictionary<string, string> ReadTemplates(IDictionary<string, string> templates, string path)
+    private IDictionary<string, string> ReadTemplates(IDictionary<string, string> templates, string path)
     {
         var loadedTemplates = new Dictionary<string, string>();
 

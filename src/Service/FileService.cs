@@ -48,6 +48,11 @@ public class FileService : IFileService
         return DirectoryExists(path);
     }
 
+    public void CopyFile(string src, string dest)
+    {
+        FileCopy(src, dest);
+    }
+
     protected virtual string PathGetDirectoryName(string path)
     {
         var directoryName = Path.GetDirectoryName(path);
@@ -81,8 +86,13 @@ public class FileService : IFileService
 
     protected virtual IEnumerable<string> DirectoryEnumerateFiles(string path, string pattern)
     {
-        return pattern != String.Empty
+        return pattern != string.Empty
             ? Directory.EnumerateFiles(path, pattern, SearchOption.AllDirectories)
             : Directory.EnumerateFiles(path);
+    }
+
+    protected virtual void FileCopy(string src, string dest)
+    {
+        File.Copy(src, dest, true);
     }
 }

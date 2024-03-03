@@ -14,6 +14,8 @@ public class BuildProjectServiceTest
     private readonly Mock<IFileService> _fileService = new();
     private readonly Mock<IMarkdownRendererService> _markdownRendererService = new();
     private readonly Mock<IMarkdownFileFactory> _markdownFileFactory = new();
+    private readonly Mock<IIndexGenerator> _indexGenerator = new();
+    private readonly Mock<IFileCopier> _fileCopier = new();
 
     [TestMethod]
     public void TestBuildProject()
@@ -85,7 +87,8 @@ public class BuildProjectServiceTest
                 _fileService.Object,
                 _markdownRendererService.Object,
                 _markdownFileFactory.Object,
-                new IndexGenerator(new HtmlTemplateParser())
+                _indexGenerator.Object,
+                _fileCopier.Object
             );
         buildProjectService.BuildProject(src, dest);
 
