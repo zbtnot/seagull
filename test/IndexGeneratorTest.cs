@@ -24,7 +24,7 @@ public class IndexGeneratorTest
             }
         };
         
-        var rendereredIndex = 
+        var renderedIndex = 
             $"""
                 {pages[0].Title}
                 {pages[0].Description}
@@ -35,7 +35,7 @@ public class IndexGeneratorTest
 
         Expression<Func<IHtmlTemplateParser, string>> render = parser =>
             parser.Render(It.IsAny<HtmlTemplate>(), It.IsAny<IDictionary<object, object>>());
-        _htmlTemplateParser.Setup(render).Returns(rendereredIndex);
+        _htmlTemplateParser.Setup(render).Returns(renderedIndex);
 
         var indexGenerator = new IndexGenerator(_htmlTemplateParser.Object);
         var index = indexGenerator.Generate(pages, string.Empty, new Configuration());
