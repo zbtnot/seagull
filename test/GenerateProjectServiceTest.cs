@@ -23,7 +23,7 @@ public class GenerateProjectServiceTest
         var path = "/foo/bar";
         var fileContent = $"title: {config.Title}";
         var configFilePath = $"{path}/seagull.yml";
-        var layoutFilePath = $"{path}/layout.html";
+        var layoutFilePath = $"{path}/layout.scriban";
 
         Expression<Func<ISerializer, string>> serialize = s => s.Serialize(It.IsAny<Configuration>());
         _serializer.Setup(serialize).Returns(fileContent);
