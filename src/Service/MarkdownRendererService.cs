@@ -21,11 +21,12 @@ public class MarkdownRendererService(
         var pageTitle = frontmatter?.Title != null
             ? $"{frontmatter.Title} | {configuration.Title}"
             : configuration.Title;
+        var date = frontmatter?.Date ?? DateTime.Now;
 
         var templateVariables = new Dictionary<object, object>
         {
             ["title"] = pageTitle,
-            ["date"] = frontmatter?.Date ?? DateTime.Now,
+            ["date"] = date,
             ["description"] = frontmatter?.Description ?? string.Empty,
             ["keywords"] = frontmatter?.Keywords ?? Array.Empty<string>(),
             ["content"] = contentHtml,
@@ -40,6 +41,7 @@ public class MarkdownRendererService(
             Content = renderedTemplateHtml,
             Path = pathHtml,
             Description = frontmatter?.Description ?? string.Empty,
+            Date = date,
         };
     }
 }

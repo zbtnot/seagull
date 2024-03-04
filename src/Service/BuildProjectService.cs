@@ -30,6 +30,7 @@ public class BuildProjectService(
 
         var mdFiles = FindAndReadMdFiles(src);
         var pages = RenderMdFilesToPages(mdFiles, templates, config).ToList();
+        pages.Sort((lhs, rhs) => rhs.Date.CompareTo(lhs.Date));
         var indexFile = indexGenerator.Generate(pages, templates.FirstOrDefault().Value, config);
         fileService.CreateTextFile(Path.Join(dest, "index.html"), indexFile);
         WritePagesToDisk(pages, dest);
