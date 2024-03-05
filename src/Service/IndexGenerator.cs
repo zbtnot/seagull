@@ -23,9 +23,10 @@ public class IndexGenerator(IHtmlTemplateParser parser) : IIndexGenerator
         var relativePath = Path.Join(".", page.Path);
         acc.Append(
             $"""
-                 <article>
-                     <a href="{relativePath}">{page.Title}</a>
-                     {page.Description}
+                 <article class="post">
+                     <h2 class="post-title"><a href="{relativePath}">{page.Title}</a></h2>
+                     <span class="post-date">{page.Date.ToString("MMMM d yyyy")}</span>
+                     <section class="post-description">{page.Description}</section>
                  </article>
              """);
 
